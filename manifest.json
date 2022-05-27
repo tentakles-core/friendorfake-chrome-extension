@@ -1,0 +1,21 @@
+{
+    "name": "ff",
+    "description": "Test Description",
+    "version": "0.1.0",
+    "manifest_version": 3,
+    "icons": {
+
+    },
+    "background":{
+        "service_worker": "service.js"
+    },
+    "options_page": "options.html",
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "permissions": [
+        "tabs",
+        "scripting"
+    ],
+    "host_permissions": ["https://*.instagram.com/*"]
+}
