@@ -78,7 +78,7 @@ console.log("Script start");
 
           console.log(user);
 
-          fetch("http://localhost:3000/", {
+          fetch("http://localhost:3000/api/v1/is-fake", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
