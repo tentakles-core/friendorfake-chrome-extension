@@ -83,7 +83,7 @@ console.log("Script start");
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ user: user }),
+            body: JSON.stringify({ username, user: user }),
           })
             .then((res) => res.json())
             .then((res) => {
