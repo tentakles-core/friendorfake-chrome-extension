@@ -77,6 +77,7 @@ console.log("Script start");
           console.log(res);
 
           if (res === "") {
+            let check = false;
             for (const entry of entries) {
               if (entry[1]["username"] === username) {
                 e = entry[1];
@@ -103,6 +104,8 @@ console.log("Script start");
                     console.log(res.result);
                     console.log(document.body);
                     if (document.body.children[0]["id"] != "fad-banner") {
+                      check = true;
+
                       if (res.result) {
                         document.body.prepend(
                           bannerElement("This account is probably fake", "red")
@@ -120,10 +123,15 @@ console.log("Script start");
                   .catch((err) => console.log(err));
               }
             }
+
+            if (!check) {
+              document.body.prepend(
+                bannerElement("This account is probably not fake", "green")
+              );
+            }
           } else {
             const result = JSON.parse(res);
-
-            if (res.result) {
+            if (result.result) {
               document.body.prepend(
                 bannerElement("This account is probably fake", "red")
               );
