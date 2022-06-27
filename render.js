@@ -48,6 +48,35 @@ console.log("Script start");
     return container;
   };
 
+  const getUserFromDocument = (document, username) => {
+    const user = {
+      followers: parseInt(
+        /([0-9]+(<\/span> followers))/
+          .exec(document.body.innerHTML)[0]
+          .split("<")[0]
+      ),
+      following: parseInt(
+        /([0-9]+(<\/span> following))/
+          .exec(document.body.innerHTML)[0]
+          .split("<")[0]
+      ),
+      bioLength: Array.from(document.querySelector("._aa_c").children).at(-2)
+        .innerHTML.length,
+      mediaCount: parseInt(
+        /([0-9]+(<\/span> posts))/
+          .exec(document.body.innerHTML)[0]
+          .split("<")[0]
+      ),
+      hasProfilePic: /(cdninstagram.com)/.test(
+        /(<img ([\w\W]+?)>)/.exec(document.body.innerHTML)[0].split(" ").at(-1)
+      ),
+      isPrivate: /(This Account is Private)/.test(document.body.innerHTML),
+      usernameDigitCount: username.replace(/[^0-9]/g, "").length,
+      usernameLength: username.length,
+    };
+    return user;
+  };
+
   const username = location.href.split("/")[3];
 
   const request = indexedDB.open("redux");
