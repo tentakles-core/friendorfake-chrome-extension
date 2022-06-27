@@ -13,6 +13,9 @@ console.log("Script start");
    * @returns banner element (DIV element)
    */
   const bannerElement = (text, color) => {
+    if (document.querySelector("#fad-banner") !== null) {
+      return;
+    }
     const container = document.createElement("div");
     container.id = "fad-banner";
 
