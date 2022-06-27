@@ -69,8 +69,8 @@ console.log("Script start");
       ),
       hasProfilePic: /(cdninstagram.com)/.test(
         /(<img ([\w\W]+?)>)/.exec(document.body.innerHTML)[0].split(" ").at(-1)
-      ),
-      isPrivate: /(This Account is Private)/.test(document.body.innerHTML),
+      ) ? 1 : 0,
+      isPrivate: /(This Account is Private)/.test(document.body.innerHTML) ? 1 : 0,
       usernameDigitCount: username.replace(/[^0-9]/g, "").length,
       usernameLength: username.length,
     };
