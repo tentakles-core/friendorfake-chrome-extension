@@ -2,6 +2,9 @@
 console.log("Script start");
 
 (() => {
+  if (document && document.getElementById("fad-banner")) {
+    document.getElementById("fad-banner").remove();
+  }
   const endpoint =
     "https://cors-everywhere-me.herokuapp.com/http://13.232.85.186:3000/api/v1/is-fake";
 
@@ -48,7 +51,20 @@ console.log("Script start");
     return container;
   };
 
-  const getUserFromDocument = (document, username) => {
+  const getUserFromDocument = (username) => {
+    let bioLength = 0;
+    if (
+      document.querySelector("header section") &&
+      document.querySelector("header section").children[2] &&
+      document.querySelector("header section").children[2].children[3]
+    ) {
+      bioLength =
+        document.querySelector("header section").children[2].children[3]
+          .innerText.length;
+    } else {
+      bioLength = 0;
+    }
+
     const user = {
       followers: parseInt(
         /([0-9]+(<\/span> followers))/
@@ -60,8 +76,7 @@ console.log("Script start");
           .exec(document.body.innerHTML)[0]
           .split("<")[0]
       ),
-      bioLength: Array.from(document.querySelector("._aa_c").children).at(-2)
-        .innerHTML.length,
+      bioLength: bioLength,
       mediaCount: parseInt(
         /([0-9]+(<\/span> posts))/
           .exec(document.body.innerHTML)[0]
@@ -69,119 +84,46 @@ console.log("Script start");
       ),
       hasProfilePic: /(cdninstagram.com)/.test(
         /(<img ([\w\W]+?)>)/.exec(document.body.innerHTML)[0].split(" ").at(-1)
-      ) ? 1 : 0,
-      isPrivate: /(This Account is Private)/.test(document.body.innerHTML) ? 1 : 0,
+      )
+        ? 1
+        : 0,
+      isPrivate: /(This Account is Private)/.test(document.body.innerHTML)
+        ? 1
+        : 0,
       usernameDigitCount: username.replace(/[^0-9]/g, "").length,
       usernameLength: username.length,
     };
     return user;
   };
 
-  const username = location.href.split("/")[3];
+  setTimeout(() => {
+    const username = location.href.split("/")[3];
+    const user = getUserFromDocument(username);
+    fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, user: user }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res.result);
+        console.log(document.body);
+        if (document.body.children[0]["id"] != "fad-banner") {
+          check = true;
 
-  const request = indexedDB.open("redux");
-
-  request.onsuccess = (event) => {
-    const db = event.target.result;
-
-    const tx = db.transaction("paths", "readonly");
-    const store = tx.objectStore("paths");
-
-    const getKey = store.get("users.users");
-
-    getKey.onsuccess = () => {
-      console.log("indexedDB query success!");
-      const banner = null;
-
-      const result = getKey.result;
-
-      const entries = Object.entries(result);
-
-      fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username }),
-      })
-        .then((res) => res.text())
-        .then((res) => {
-          console.log(res);
-
-          if (res === "") {
-            let check = false;
-            for (const entry of entries) {
-              if (entry[1]["username"] === username) {
-                e = entry[1];
-                const user = {
-                  followers: e["counts"]["followedBy"],
-                  following: e["counts"]["follows"],
-                  bioLength: e["bio"].length,
-                  mediaCount: e["counts"]["media"],
-                  hasProfilePic: 1,
-                  isPrivate: e["isPrivate"] ? 1 : 0,
-                  usernameDigitCount: 0,
-                  usernameLength: e["username"].length,
-                };
-
-                fetch(endpoint, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ username, user: user }),
-                })
-                  .then((res) => res.json())
-                  .then((res) => {
-                    console.log(res.result);
-                    console.log(document.body);
-                    if (document.body.children[0]["id"] != "fad-banner") {
-                      check = true;
-
-                      if (res.result) {
-                        document.body.prepend(
-                          bannerElement("This account is probably fake", "red")
-                        );
-                      } else {
-                        document.body.prepend(
-                          bannerElement(
-                            "This account is probably not fake",
-                            "green"
-                          )
-                        );
-                      }
-                    }
-                  })
-                  .catch((err) => console.log(err));
-              }
-            }
-
-            if (!check) {
-              document.body.prepend(
-                bannerElement("This account is probably not fake", "green")
-              );
-            }
+          if (res.result) {
+            document.body.prepend(
+              bannerElement("This account is probably fake", "red")
+            );
           } else {
-            const result = JSON.parse(res);
-            if (result.result) {
-              document.body.prepend(
-                bannerElement("This account is probably fake", "red")
-              );
-            } else {
-              document.body.prepend(
-                bannerElement("This account is probably not fake", "green")
-              );
-            }
+            document.body.prepend(
+              bannerElement("This account is probably not fake", "green")
+            );
           }
-        });
-    };
-
-    tx.onerror = () => {
-      console.error(tx.error);
-    };
-
-    tx.oncomplete = () => {
-      db.close();
-    };
-  };
+        }
+      })
+      .catch((err) => console.log(err));
+  }, 2000);
 })();
