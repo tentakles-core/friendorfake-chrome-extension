@@ -2,6 +2,9 @@
 console.log("Script start");
 
 (() => {
+  const endpoint =
+    "https://cors-everywhere-me.herokuapp.com/http://13.232.85.186:3000/api/v1/is-fake";
+
   /**
    * Function returns a banner element which can be inserted to the instagram profile
    *
@@ -62,48 +65,75 @@ console.log("Script start");
 
       const entries = Object.entries(result);
 
-      for (const entry of entries) {
-        if (entry[1]["username"] === username) {
-          e = entry[1];
-          const user = {
-            followers: e["counts"]["followedBy"],
-            following: e["counts"]["follows"],
-            bioLength: e["bio"].length,
-            mediaCount: e["counts"]["media"],
-            hasProfilePic: 1,
-            isPrivate: e["isPrivate"] ? 1 : 0,
-            usernameDigitCount: 0,
-            usernameLength: e["username"].length,
-          };
+      fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username }),
+      })
+        .then((res) => res.text())
+        .then((res) => {
+          console.log(res);
 
-          console.log(user);
+          if (res === "") {
+            for (const entry of entries) {
+              if (entry[1]["username"] === username) {
+                e = entry[1];
+                const user = {
+                  followers: e["counts"]["followedBy"],
+                  following: e["counts"]["follows"],
+                  bioLength: e["bio"].length,
+                  mediaCount: e["counts"]["media"],
+                  hasProfilePic: 1,
+                  isPrivate: e["isPrivate"] ? 1 : 0,
+                  usernameDigitCount: 0,
+                  usernameLength: e["username"].length,
+                };
 
-          fetch("http://13.232.85.186:3000/api/v1/is-fake", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username, user: user }),
-          })
-            .then((res) => res.json())
-            .then((res) => {
-              console.log(res.result);
-              console.log(document.body);
-              if (document.body.children[0]["id"] != "fad-banner") {
-                if (res.result) {
-                  document.body.prepend(
-                    bannerElement("This account is probably fake", "red")
-                  );
-                } else {
-                  document.body.prepend(
-                    bannerElement("This account is probably not fake", "green")
-                  );
-                }
+                fetch(endpoint, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ username, user: user }),
+                })
+                  .then((res) => res.json())
+                  .then((res) => {
+                    console.log(res.result);
+                    console.log(document.body);
+                    if (document.body.children[0]["id"] != "fad-banner") {
+                      if (res.result) {
+                        document.body.prepend(
+                          bannerElement("This account is probably fake", "red")
+                        );
+                      } else {
+                        document.body.prepend(
+                          bannerElement(
+                            "This account is probably not fake",
+                            "green"
+                          )
+                        );
+                      }
+                    }
+                  })
+                  .catch((err) => console.log(err));
               }
-            })
-            .catch((err) => console.log(err));
-        }
-      }
+            }
+          } else {
+            const result = JSON.parse(res);
+
+            if (res.result) {
+              document.body.prepend(
+                bannerElement("This account is probably fake", "red")
+              );
+            } else {
+              document.body.prepend(
+                bannerElement("This account is probably not fake", "green")
+              );
+            }
+          }
+        });
     };
 
     tx.onerror = () => {
