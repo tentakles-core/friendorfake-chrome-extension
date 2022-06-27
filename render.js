@@ -156,20 +156,3 @@ console.log("Script start");
     };
   };
 })();
-// fetch('http://3.111.176.208:5000/predict', {
-//     method: 'post',
-//     body: JSON.stringify({
-//     "cc_num" : 38580487454720.0,
-//     "amt": 2.319999933242798,
-//     "zip": 58765.0,
-//     "lat": 48.88560104370117,
-//     "long": -103.00980377197266,
-//     "city_pop": 248.0,
-//     "merch_lat": 48.949153900146484,
-//     "merch_long": -102.4922866821289,
-//     "txn_hour": 10.0,
-//     "txn_minute": 45.0,
-//     "txn_date": 8.0,
-//     "txn_month": 12.0
-// })
-// }).then(res => console.log(res))
